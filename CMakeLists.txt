@@ -5,11 +5,11 @@ include(CTest)
 enable_testing()
 
 include_directories(
-  "../../Git/argparse/"
+  "argparse/"
   "src"
 )
 link_directories(
-  "../../Git/argparse/"
+  "argparse/"
 )
 
 add_executable(
@@ -19,8 +19,8 @@ add_executable(
   src/sub_list.c
   src/sub.c
   src/time.c
+  argparse/argparse.c
 )
-target_link_libraries(srted argparse)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
