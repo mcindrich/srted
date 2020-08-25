@@ -1,0 +1,8 @@
+1
+00:01:27,963 --> 00:01:32,676
+Simple first section.
+With two parts.
+
+2
+00:01:32,801 --> 00:01:35,012
+- Simple second section.

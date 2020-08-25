@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.0.0)
+project(srted VERSION 0.1.0)
+
+include(CTest)
+enable_testing()
+
+include_directories(
+  "../../Git/argparse/"
+  "src"
+)
+link_directories(
+  "../../Git/argparse/"
+)
+
+add_executable(
+  srted
+  src/srted.c
+  src/srt.c
+  src/sub_list.c
+  src/sub.c
+  src/time.c
+)
+target_link_libraries(srted argparse)
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
