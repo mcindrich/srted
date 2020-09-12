@@ -8,6 +8,7 @@ typedef struct sub sub_t;
 struct sub {
 	srt_time_t s_time;
 	srt_time_t e_time;
+	// needs to be changed to support utf8
 	char *text[MAX_LINES];
 };
 
