@@ -7,10 +7,10 @@
 typedef struct time srt_time_t;
 
 struct time {
-  int h;
-  int m;
-  int s;
-  int ms;
+	int h;
+	int m;
+	int s;
+	int ms;
 };
 
 void time_init(srt_time_t *time);

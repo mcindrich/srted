@@ -5,8 +5,8 @@
 typedef struct sub_list sub_list_t;
 
 struct sub_list {
-  sub_t *subs;
-  int count;
+	sub_t *subs;
+	int count;
 };
 
 void sub_list_init(sub_list_t *list);

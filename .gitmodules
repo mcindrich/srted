@@ -1,3 +1,6 @@
 [submodule "argparse"]
 	path = argparse
 	url = https://github.com/cofyc/argparse
+[submodule "utf8"]
+	path = utf8
+	url = https://github.com/mcindrich/utf8

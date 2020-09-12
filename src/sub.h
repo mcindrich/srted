@@ -6,9 +6,9 @@
 typedef struct sub sub_t;
 
 struct sub {
-  srt_time_t s_time;
-  srt_time_t e_time;
-  char *text[MAX_LINES];
+	srt_time_t s_time;
+	srt_time_t e_time;
+	char *text[MAX_LINES];
 };
 
 void sub_init(sub_t *sub);

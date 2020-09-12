@@ -6,7 +6,7 @@
 typedef struct srt srt_t;
 
 struct srt {
-  sub_list_t subs;
+	sub_list_t subs;
 };
 
 void srt_init(srt_t *srt);
