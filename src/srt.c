@@ -127,9 +127,7 @@ void srt_print(srt_t *srt, FILE *file) {
 						sub->e_time.h, sub->e_time.m, sub->e_time.s, sub->e_time.ms);
 		for (int i = 0; i < MAX_LINES; i++) {
 			utf8_string_t line = sub->text[i];
-			if (line.block_count) {
-				utf8_string_print(&line, file);
-			}
+			utf8_string_print(&line, file);
 		}
 		fprintf(file, "\n");
 	}
