@@ -1,0 +1,13 @@
+1
+00:01:27,963 --> 00:01:32,676
+Simple first section.
+With two parts.
+
+2
+00:01:32,801 --> 00:01:35,012
+- Simple second section.
+
+3
+00:01:35,012 --> 00:01:39,015
+- Simple second section with utf8 string -> the euro symbol: │ 14.95 € │ and greek subs Σὲ γνωρίζω ἀπὸ τὴν κόψη τοῦ σπαθιοῦ τὴν τρομερήσὲ γνωρίζω ἀπὸ τὴν ὄψη.
+

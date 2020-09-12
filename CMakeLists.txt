@@ -6,10 +6,12 @@ enable_testing()
 
 include_directories(
   "argparse/"
+  "utf8/src"
   "src"
 )
 link_directories(
   "argparse/"
+  "utf8/build/"
 )
 
 add_executable(
@@ -21,6 +23,8 @@ add_executable(
   src/time.c
   argparse/argparse.c
 )
+
+target_link_libraries(srted utf8)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
