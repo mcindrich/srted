@@ -157,15 +157,6 @@ int main(void) {
 				// srt_print(&ed_ctx.srt_file, stdout);
 			}
 
-			nk_layout_row_dynamic(ctx, 30, 2);
-			if (nk_option_label(ctx, "easy", op == EASY))
-				op = EASY;
-			if (nk_option_label(ctx, "hard", op == HARD))
-				op = HARD;
-
-			nk_layout_row_dynamic(ctx, 25, 1);
-			nk_property_int(ctx, "Compression:", 0, &property, 100, 10, 1);
-
 			nk_layout_row_dynamic(ctx, 20, 1);
 			nk_label(ctx, "Background Color:", NK_TEXT_LEFT);
 			nk_layout_row_dynamic(ctx, 25, 1);
