@@ -4,3 +4,6 @@
 [submodule "utf8"]
 	path = utf8
 	url = https://github.com/mcindrich/utf8
+[submodule "Nuklear"]
+	path = Nuklear
+	url = https://github.com/Immediate-Mode-UI/Nuklear

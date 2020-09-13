@@ -7,6 +7,7 @@ enable_testing()
 include_directories(
   "argparse/"
   "utf8/src"
+  "Nuklear"
   "src"
 )
 link_directories(
@@ -25,6 +26,18 @@ add_executable(
 )
 
 target_link_libraries(srted utf8)
+
+add_executable(
+  srted-gui
+  src/srted-gui.c
+  src/srt.c
+  src/sub_list.c
+  src/sub.c
+  src/time.c
+  argparse/argparse.c
+)
+
+target_link_libraries(srted-gui utf8 m GLEW GL glfw)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
