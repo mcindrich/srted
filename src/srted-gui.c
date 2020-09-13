@@ -104,7 +104,7 @@ int main(void) {
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-	win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Demo", NULL, NULL);
+	win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "srted-gui", NULL, NULL);
 	glfwMakeContextCurrent(win);
 	glfwGetWindowSize(win, &width, &height);
 
@@ -154,7 +154,7 @@ int main(void) {
 			if (nk_button_label(ctx, "Open File")) {
 				// load srt file
 				editor_ctx_load(&ed_ctx);
-				srt_print(&ed_ctx.srt_file, stdout);
+				// srt_print(&ed_ctx.srt_file, stdout);
 			}
 
 			nk_layout_row_dynamic(ctx, 30, 2);
@@ -201,12 +201,63 @@ int main(void) {
 				// file is loaded -> show subs
 				int count = ed_ctx.srt_file.subs.count;
 				char buf[100];
-				int *selected = malloc(sizeof(int) * count);
-				for (int i = 0; i < count; i++) {
-					nk_layout_row_dynamic(ctx, 20, 3);
-					nk_layout_row_static(ctx, 50, (WINDOW_WIDTH - 400) / 3, 3);
-					sprintf(buf, "Line %d", i + 1);
-					nk_selectable_label(ctx, buf, NK_TEXT_ALIGN_CENTERED, &selected[i]);
+				if (nk_tree_push(ctx, NK_TREE_NODE, "All subs", NK_MAXIMIZED)) {
+					nk_layout_row_static(ctx, WINDOW_HEIGHT - 500, WINDOW_WIDTH - 400 - 30, 1);
+					if (nk_group_begin(ctx, "Group_Without_Border", NK_WINDOW_BORDER)) {
+						int i = 0;
+						char buffer[64];
+						char lbuffer[512];
+
+						unsigned char *lines[MAX_LINES];
+
+						for (i = 0; i < count; ++i) {
+							nk_layout_row_static(ctx, 18, 200, 1);
+							sprintf(buffer, "Sub 0x%02x", i);
+							sub_t *sub = &ed_ctx.srt_file.subs.subs[i];
+							nk_labelf(ctx, NK_TEXT_LEFT, "%s", buffer);
+							srt_time_t beg = sub->s_time;
+							srt_time_t end = sub->e_time;
+
+							sprintf(lbuffer, "Line %d : %02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d", i + 1, beg.h, beg.m, beg.s, beg.ms,
+											end.h, end.m, end.s, end.ms);
+							if (nk_tree_push(ctx, NK_TREE_NODE, lbuffer, NK_MINIMIZED)) {
+								for (int j = 0; j < MAX_LINES; j++) {
+									lines[j] = utf8_string_get_C_str(&ed_ctx.srt_file.subs.subs[i].text[j]);
+									lines[j][strlen(lines[j]) - 1] = 0;
+									nk_labelf(ctx, NK_TEXT_LEFT, "%s", lines[j]);
+									free(lines[j]);
+								}
+								nk_tree_pop(ctx);
+							}
+							if (nk_button_label(ctx, "Edit")) {
+								// save directory field to config file
+								fprintf(stdout, "Edit sub %d...\n", i);
+							}
+							if (nk_button_label(ctx, "Remove")) {
+								// save directory field to config file
+								fprintf(stdout, "Edit sub %d...\n", i);
+							}
+						}
+						nk_group_end(ctx);
+					}
+					/*if (nk_group_begin(ctx, "Group_With_Border", NK_WINDOW_BORDER)) {
+						int i = 0;
+						char buffer[64];
+						nk_layout_row_dynamic(ctx, 25, 2);
+						for (i = 0; i < 64; ++i) {
+							sprintf(buffer, "%08d", ((((i % 7) * 10) ^ 32)) + (64 + (i % 2) * 2));
+							nk_button_label(ctx, buffer);
+						}
+						nk_group_end(ctx);
+					}*/
+					nk_tree_pop(ctx);
+				}
+				/*nk_layout_row_static(ctx, 50, (WINDOW_WIDTH - 400) / 3, 3);
+					if (nk_tree_push(ctx, NK_TREE_NODE, "Text", NK_MINIMIZED)) {
+						nk_layout_row_dynamic(ctx, 20, 3);
+						// show lines
+						nk_tree_pop(ctx);
+					}
 					if (nk_button_label(ctx, "Edit")) {
 						// save directory field to config file
 						fprintf(stdout, "Edit sub...\n");
@@ -214,9 +265,7 @@ int main(void) {
 					if (nk_button_label(ctx, "Remove")) {
 						// save directory field to config file
 						fprintf(stdout, "Edit sub...\n");
-					}
-				}
-				free(selected);
+					}*/
 			} else {
 				// show basic label
 				nk_layout_row_dynamic(ctx, 20, 1);
