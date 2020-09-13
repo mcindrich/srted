@@ -79,10 +79,27 @@ int main(void) {
 		glfwPollEvents();
 		nk_glfw3_new_frame(&glfw);
 
-		/* GUI */
-		if (nk_begin(ctx, "Demo", nk_rect(50, 50, 230, 250),
+		/* File Open GUI */
+		if (nk_begin(ctx, "File Opener", nk_rect(0, 0, 800, 600),
+								 NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_MOVABLE)) {
+			static int property = 20;
+			char text_buffer[256];
+			int text_len;
+			nk_layout_row_static(ctx, 30, 80, 2);
+			nk_label(ctx, "Filename:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_FIELD, text_buffer, &text_len, 256, NULL);
+
+			nk_layout_row_static(ctx, 30, 80, 1);
+			if (nk_button_label(ctx, "Open File")) {
+				fprintf(stdout, "FILE: %s\n", text_buffer);
+			}
+		}
+		nk_end(ctx);
+
+		/* Demo GUI */
+		if (nk_begin(ctx, "Window Setup", nk_rect(800, 0, 230, 250),
 								 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
-										 NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
+										 NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE)) {
 			enum { EASY,
 						 HARD };
 			static int op = EASY;
