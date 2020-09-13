@@ -27,7 +27,7 @@ $ git clone https://github.com/mcindrich/srted --recursive && cd srted && mkdir 
 ![Screenshot](images/srted-gui.png)
 
 ### CLI
-```bash
+```console
 $ srted --help
 Usage: srted [options] [[--] args]
    or: srted [options]
