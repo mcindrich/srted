@@ -23,6 +23,7 @@
 #define NK_KEYSTATE_BASED_INPUT
 #include "nuklear.h"
 #include "demo/glfw_opengl3/nuklear_glfw_gl3.h"
+#include <gui/editor_ctx.h>
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
@@ -34,6 +35,38 @@ static void error_callback(int e, const char *d) {
 	printf("Error %d: %s\n", e, d);
 }
 
+static unsigned char hex_char_to_int(char c[2]) {
+	unsigned char ret = 0;
+	ret += (c[0] >= 'a' && c[0] <= 'f') ? (10 + c[0] - 'a') : c[0] - '0';
+	ret *= 16;
+	ret += (c[1] >= 'a' && c[1] <= 'f') ? (10 + c[1] - 'a') : c[1] - '0';
+	return ret;
+}
+
+static struct nk_colorf
+str_to_color(char *str) {
+	// format '#rrggbbaa'
+	struct nk_colorf col = {0};
+	if (strlen(str) == 8) {
+		char r[2], g[2], b[2], a[2];
+		memcpy(r, str, 2);
+		str += 2;
+		memcpy(g, str, 2);
+		str += 2;
+		memcpy(b, str, 2);
+		str += 2;
+		memcpy(a, str, 2);
+		str += 2;
+		col.r = (float) hex_char_to_int(r) / 255;
+		col.g = (float) hex_char_to_int(g) / 255;
+		col.b = (float) hex_char_to_int(b) / 255;
+		col.a = (float) hex_char_to_int(a) / 255;
+		// assert reached the end
+		assert(*str == 0);
+	}
+	return col;
+}
+
 int main(void) {
 	/* Platform */
 	struct nk_glfw glfw = {0};
@@ -41,6 +74,23 @@ int main(void) {
 	int width = 0, height = 0;
 	struct nk_context *ctx;
 	struct nk_colorf bg;
+
+	// save editor related config and data
+	editor_ctx_t ed_ctx;
+
+	// init ctx and load config
+	editor_ctx_init(&ed_ctx);
+	editor_ctx_set_color_ptr(&ed_ctx, &bg);
+
+	// set color immediately when config is loaded
+	section_t *cfg = config_get_section(&ed_ctx.config_file, "Configuration");
+	if (!cfg) {
+		// error loading config
+		return -1;
+	}
+
+	pair_t *bgcol = section_get_pair(cfg, "bg_color");
+	bg = str_to_color(bgcol->value);
 
 	/* GLFW */
 	glfwSetErrorCallback(error_callback);
@@ -73,40 +123,39 @@ int main(void) {
 		nk_glfw3_font_stash_end(&glfw);
 	}
 
-	bg.r = 0.10f, bg.g = 0.18f, bg.b = 0.24f, bg.a = 1.0f;
 	while (!glfwWindowShouldClose(win)) {
 		/* Input */
 		glfwPollEvents();
 		nk_glfw3_new_frame(&glfw);
 
-		/* File Open GUI */
-		if (nk_begin(ctx, "File Opener", nk_rect(0, 0, 800, 600),
-								 NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_MOVABLE)) {
-			static int property = 20;
-			char text_buffer[256];
-			int text_len;
-			nk_layout_row_static(ctx, 30, 80, 2);
-			nk_label(ctx, "Filename:", NK_TEXT_LEFT);
-			nk_edit_string(ctx, NK_EDIT_FIELD, text_buffer, &text_len, 256, NULL);
-
-			nk_layout_row_static(ctx, 30, 80, 1);
-			if (nk_button_label(ctx, "Open File")) {
-				fprintf(stdout, "FILE: %s\n", text_buffer);
-			}
-		}
-		nk_end(ctx);
-
-		/* Demo GUI */
-		if (nk_begin(ctx, "Window Setup", nk_rect(800, 0, 230, 250),
-								 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
-										 NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE)) {
+		/* Config GUI */
+		if (nk_begin(ctx, "Configuration", nk_rect(0, 0, 400, WINDOW_HEIGHT),
+								 NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE)) {
 			enum { EASY,
 						 HARD };
 			static int op = EASY;
 			static int property = 20;
-			nk_layout_row_static(ctx, 30, 80, 1);
-			if (nk_button_label(ctx, "button"))
-				fprintf(stdout, "button pressed\n");
+
+			// dir name
+			nk_layout_row_static(ctx, 30, 100, 3);
+			nk_label(ctx, "Directory:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_FIELD, ed_ctx.dname_buffer, &ed_ctx.dname_len, 256, NULL);
+			if (nk_button_label(ctx, "Save Dir")) {
+				// save directory field to config file
+				fprintf(stdout, "Saving %s...\n", ed_ctx.dname_buffer);
+			}
+
+			// file name
+			nk_layout_row_static(ctx, 30, 100, 3);
+			nk_label(ctx, "Filename:", NK_TEXT_LEFT);
+			nk_edit_string(ctx, NK_EDIT_FIELD, ed_ctx.fname_buffer, &ed_ctx.fname_len, 256, NULL);
+
+			// open file button
+			if (nk_button_label(ctx, "Open File")) {
+				// load srt file
+				editor_ctx_load(&ed_ctx);
+				srt_print(&ed_ctx.srt_file, stdout);
+			}
 
 			nk_layout_row_dynamic(ctx, 30, 2);
 			if (nk_option_label(ctx, "easy", op == EASY))
@@ -118,7 +167,7 @@ int main(void) {
 			nk_property_int(ctx, "Compression:", 0, &property, 100, 10, 1);
 
 			nk_layout_row_dynamic(ctx, 20, 1);
-			nk_label(ctx, "background:", NK_TEXT_LEFT);
+			nk_label(ctx, "Background Color:", NK_TEXT_LEFT);
 			nk_layout_row_dynamic(ctx, 25, 1);
 			if (nk_combo_begin_color(ctx, nk_rgb_cf(bg), nk_vec2(nk_widget_width(ctx), 400))) {
 				nk_layout_row_dynamic(ctx, 120, 1);
@@ -129,6 +178,49 @@ int main(void) {
 				bg.b = nk_propertyf(ctx, "#B:", 0, bg.b, 1.0f, 0.01f, 0.005f);
 				bg.a = nk_propertyf(ctx, "#A:", 0, bg.a, 1.0f, 0.01f, 0.005f);
 				nk_combo_end(ctx);
+			}
+
+			nk_layout_row_static(ctx, 30, 200, 1);
+			nk_label(ctx, "Configuration action buttons:", NK_TEXT_LEFT);
+			nk_layout_row_static(ctx, 30, 100, 2);
+			if (nk_button_label(ctx, "Save Config")) {
+				// save directory field to config file
+				fprintf(stdout, "Saving config...\n");
+			}
+			if (nk_button_label(ctx, "Open Config")) {
+				// save directory field to config file
+				fprintf(stdout, "Opening config...\n");
+			}
+		}
+		nk_end(ctx);
+
+		/* Subs GUI */
+		if (nk_begin(ctx, "Subs", nk_rect(400, 0, WINDOW_WIDTH, 500),
+								 NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_TITLE)) {
+			if (ed_ctx.srt_loaded) {
+				// file is loaded -> show subs
+				int count = ed_ctx.srt_file.subs.count;
+				char buf[100];
+				int *selected = malloc(sizeof(int) * count);
+				for (int i = 0; i < count; i++) {
+					nk_layout_row_dynamic(ctx, 20, 3);
+					nk_layout_row_static(ctx, 50, (WINDOW_WIDTH - 400) / 3, 3);
+					sprintf(buf, "Line %d", i + 1);
+					nk_selectable_label(ctx, buf, NK_TEXT_ALIGN_CENTERED, &selected[i]);
+					if (nk_button_label(ctx, "Edit")) {
+						// save directory field to config file
+						fprintf(stdout, "Edit sub...\n");
+					}
+					if (nk_button_label(ctx, "Remove")) {
+						// save directory field to config file
+						fprintf(stdout, "Edit sub...\n");
+					}
+				}
+				free(selected);
+			} else {
+				// show basic label
+				nk_layout_row_dynamic(ctx, 20, 1);
+				nk_label(ctx, "Waiting for subs...", NK_TEXT_LEFT);
 			}
 		}
 		nk_end(ctx);
@@ -146,6 +238,7 @@ int main(void) {
 		nk_glfw3_render(&glfw, NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
 		glfwSwapBuffers(win);
 	}
+	editor_ctx_free(&ed_ctx);
 	nk_glfw3_shutdown(&glfw);
 	glfwTerminate();
 	return 0;

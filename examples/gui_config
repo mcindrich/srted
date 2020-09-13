@@ -1,0 +1,3 @@
+[Configuration]
+subs_dir = "/run/media/zn/code/Git/srted/examples"
+bg_color = "f00064ff"

@@ -7,3 +7,6 @@
 [submodule "Nuklear"]
 	path = Nuklear
 	url = https://github.com/Immediate-Mode-UI/Nuklear
+[submodule "cconf"]
+	path = cconf
+	url = https://github.com/mcindrich/cconf

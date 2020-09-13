@@ -8,11 +8,13 @@ include_directories(
   "argparse/"
   "utf8/src"
   "Nuklear"
+  "cconf/include"
   "src"
 )
 link_directories(
   "argparse/"
   "utf8/build/"
+  "cconf/build"
 )
 
 add_executable(
@@ -35,9 +37,10 @@ add_executable(
   src/sub.c
   src/time.c
   argparse/argparse.c
+  src/gui/editor_ctx.c
 )
 
-target_link_libraries(srted-gui utf8 m GLEW GL glfw)
+target_link_libraries(srted-gui utf8 m GLEW GL glfw cconf)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
